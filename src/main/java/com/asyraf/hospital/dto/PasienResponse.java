@@ -1,0 +1,15 @@
+package com.asyraf.hospital.dto;
+
+import lombok.Data;
+import lombok.Builder;
+
+@Data
+@Builder
+public class PasienResponse {
+
+    private Integer id;
+    private String nama;
+    private String noHp;
+    private Integer userId;
+
+}
