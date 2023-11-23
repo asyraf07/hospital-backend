@@ -10,13 +10,17 @@ import com.asyraf.hospital.interceptor.TokenValidationInterceptor;
 @Configuration
 public class TokenValidationConfiguration implements WebMvcConfigurer {
 
-    @Autowired
-    private TokenValidationInterceptor tokenValidationInterceptor;
+    private final TokenValidationInterceptor tokenValidationInterceptor;
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(tokenValidationInterceptor)
-            .excludePathPatterns("/auth/*");
+    @Autowired
+    public TokenValidationConfiguration(TokenValidationInterceptor tokenValidationInterceptor) {
+        this.tokenValidationInterceptor = tokenValidationInterceptor;
     }
+
+    // @Override
+    // public void addInterceptors(InterceptorRegistry registry) {
+    //     registry.addInterceptor(tokenValidationInterceptor)
+    //         .excludePathPatterns("/auth/*");
+    // }
     
 }

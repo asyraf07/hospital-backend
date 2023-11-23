@@ -21,8 +21,12 @@ import com.asyraf.hospital.service.KamarPasienService;
 @RequestMapping("/kamarPasien")
 public class KamarPasienController {
 
+    private final KamarPasienService kamarPasienService;
+
     @Autowired
-    private KamarPasienService kamarPasienService;
+    public KamarPasienController(KamarPasienService kamarPasienService) {
+        this.kamarPasienService = kamarPasienService;
+    }
 
     @GetMapping
     public ResponseEntity<List<KamarPasienResponse>> getAll() {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +20,14 @@ import lombok.SneakyThrows;
 @Service
 public class PasienService {
 
-    @Autowired
-    PasienRepository pasienRepository;
+    public final PasienRepository pasienRepository;
+    public final UserRepository userRepository;
 
     @Autowired
-    UserRepository userRepository;
+    public PasienService(PasienRepository pasienRepository, UserRepository userRepository) {
+        this.pasienRepository = pasienRepository;
+        this.userRepository = userRepository;
+    }
 
     public List<PasienResponse> getAllPasien() {
         List<PasienResponse> response = new ArrayList<>();
@@ -44,7 +48,7 @@ public class PasienService {
     public PasienResponse getPasien(Integer id) {
         Optional<Pasien> find = pasienRepository.findById(id);
         if (!find.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada pasien dengan ID ini!");
         }
         Pasien pasien = find.get();
         return PasienResponse.builder()
@@ -59,7 +63,7 @@ public class PasienService {
     public PasienResponse addPasien(PasienRequest request) {
         Optional<User> find = userRepository.findById(request.getUserId());
         if (!find.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada user dengan ID ini!");
         }
         User user = find.get();
         Pasien pasien = new Pasien();
@@ -77,11 +81,11 @@ public class PasienService {
     public PasienResponse updatePasien(Integer id, PasienRequest request) {
         Optional<Pasien> findPasien = pasienRepository.findById(id);
         if (!findPasien.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada pasien dengan ID ini!");
         }
         Optional<User> findUser = userRepository.findById(request.getUserId());
         if (!findUser.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada user dengan ID ini!");
         }
         User user = findUser.get();
         Pasien pasien = findPasien.get();

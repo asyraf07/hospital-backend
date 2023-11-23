@@ -7,6 +7,8 @@ import lombok.Builder;
 @Builder
 public class LoginResponse {
 
+    private Integer userId;
     private String token;
+    private Integer pasienId;
 
 }

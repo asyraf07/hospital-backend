@@ -1,10 +1,10 @@
 package com.asyraf.hospital.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,14 +22,16 @@ import lombok.SneakyThrows;
 @Service
 public class KamarPasienService {
 
-    @Autowired
-    KamarPasienRepository kamarPasienRepository;
+    public final KamarPasienRepository kamarPasienRepository;
+    public final PasienRepository pasienRepository;
+    public final KamarRepository kamarRepository;
 
     @Autowired
-    PasienRepository pasienRepository;
-
-    @Autowired
-    KamarRepository kamarRepository;
+    public KamarPasienService(KamarPasienRepository kamarPasienRepository, PasienRepository pasienRepository, KamarRepository kamarRepository) {
+        this.kamarPasienRepository = kamarPasienRepository;
+        this.pasienRepository = pasienRepository;
+        this.kamarRepository = kamarRepository;
+    }
 
     public List<KamarPasienResponse> getAllKamarPasien() {
         List<KamarPasienResponse> response = new ArrayList<>();
@@ -51,7 +53,7 @@ public class KamarPasienService {
     public KamarPasienResponse getKamarPasien(Integer id) {
         Optional<KamarPasien> find = kamarPasienRepository.findById(id);
         if (!find.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada kamar pasien dengan ID ini!");
         }
         KamarPasien kamarPasien = find.get();
         return KamarPasienResponse.builder()
@@ -68,14 +70,15 @@ public class KamarPasienService {
         Optional<Pasien> findPasien = pasienRepository.findById(request.getPasienId());
         Optional<Kamar> findKamar = kamarRepository.findById(request.getKamarId());
         if (!findPasien.isPresent() || !findKamar.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada pasien dengan ID ini!");
         }
         Pasien pasien = findPasien.get();
         Kamar kamar = findKamar.get();
         KamarPasien kamarPasien = new KamarPasien();
         kamarPasien.setPasien(pasien);
         kamarPasien.setKamar(kamar);
-        kamarPasien.setTanggalMasuk(new Date());
+        kamarPasien.setTanggalMasuk(request.getTanggalMasuk());
+        kamarPasien.setTanggalKeluar(request.getTanggalKeluar());
         kamarPasienRepository.save(kamarPasien);
         return KamarPasienResponse.builder()
                 .id(kamarPasien.getId())
@@ -90,20 +93,20 @@ public class KamarPasienService {
     public KamarPasienResponse updateKamarPasien(Integer id, KamarPasienRequest request) {
         Optional<KamarPasien> findKamarPasien = kamarPasienRepository.findById(id);
         if (!findKamarPasien.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada kamar pasien dengan ID ini!");
         }
         Optional<Pasien> findPasien = pasienRepository.findById(request.getPasienId());
         Optional<Kamar> findKamar = kamarRepository.findById(request.getKamarId());
         if (!findPasien.isPresent() || !findKamar.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada kamar atau pasien dengan ID ini!");
         }
         Pasien pasien = findPasien.get();
         Kamar kamar = findKamar.get();
         KamarPasien kamarPasien = findKamarPasien.get();
         kamarPasien.setPasien(pasien);
         kamarPasien.setKamar(kamar);
-        kamarPasien.setTanggalMasuk(new Date());
-        kamarPasien.setTanggalMasuk(new Date());
+        kamarPasien.setTanggalMasuk(request.getTanggalMasuk());
+        kamarPasien.setTanggalKeluar(request.getTanggalKeluar());
         kamarPasienRepository.save(kamarPasien);
         return KamarPasienResponse.builder()
                 .id(kamarPasien.getId())

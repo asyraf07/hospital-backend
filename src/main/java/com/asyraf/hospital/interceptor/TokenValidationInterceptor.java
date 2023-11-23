@@ -15,18 +15,25 @@ import com.asyraf.hospital.repository.UserRepository;
 @Component
 public class TokenValidationInterceptor implements HandlerInterceptor {
 
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public TokenValidationInterceptor(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Autowired
+
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         String token = request.getHeader("token");
 
-        if (!isValid(token)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is invalid!");
-            return false;
-        }
+        // if (!isValid(token)) {
+        //     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is invalid!");
+        //     return false;
+        // }
         return true;
     }
 

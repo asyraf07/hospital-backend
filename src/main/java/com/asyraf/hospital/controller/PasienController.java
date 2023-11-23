@@ -21,8 +21,12 @@ import com.asyraf.hospital.service.PasienService;
 @RequestMapping("/pasien")
 public class PasienController {
 
+    private final PasienService pasienService;
+
     @Autowired
-    private PasienService pasienService;
+    public PasienController(PasienService pasienService) {
+        this.pasienService = pasienService;
+    }
 
     @GetMapping
     public ResponseEntity<List<PasienResponse>> getAll() {

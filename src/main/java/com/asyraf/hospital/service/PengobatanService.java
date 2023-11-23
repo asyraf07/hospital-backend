@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.service.spi.ServiceException;
+import org.hibernate.type.SpecialOneToOneType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,14 +24,16 @@ import lombok.SneakyThrows;
 @Service
 public class PengobatanService {
 
-    @Autowired
-    PengobatanRepository pengobatanRepository;
+    public final PengobatanRepository pengobatanRepository;
+    public final PasienRepository pasienRepository;
+    public final DokterRepository dokterRepository;
 
     @Autowired
-    PasienRepository pasienRepository;
-
-    @Autowired
-    DokterRepository dokterRepository;
+    public PengobatanService(PengobatanRepository pengobatanRepository, PasienRepository pasienRepository, DokterRepository dokterRepository) {
+        this.pengobatanRepository = pengobatanRepository;
+        this.pasienRepository = pasienRepository;
+        this.dokterRepository = dokterRepository;
+    }
 
     public List<PengobatanResponse> getAllPengobatan() {
         List<PengobatanResponse> response = new ArrayList<>();
@@ -47,11 +51,27 @@ public class PengobatanService {
         return response;
     }
 
+    public List<PengobatanResponse> getAllPengobatanByPasienId(Integer id) {
+        List<PengobatanResponse> response = new ArrayList<>();
+
+        List<Pengobatan> pengobatanList = pengobatanRepository.findByPasienId(id);
+        for (Pengobatan pengobatan : pengobatanList) {
+            response.add(PengobatanResponse.builder()
+                    .id(pengobatan.getId())
+                    .namaPasien(pengobatan.getPasien().getUser().getNama())
+                    .namaDokter(pengobatan.getDokter().getUser().getNama())
+                    .penyakit(pengobatan.getPenyakit())
+                    .tanggalPengobatan(pengobatan.getTanggalPengobatan())
+                    .build());
+        }
+        return response;
+    }
+
     @SneakyThrows
     public PengobatanResponse getPengobatan(Integer id) {
         Optional<Pengobatan> find = pengobatanRepository.findById(id);
         if (!find.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada pengobatan dengan ID ini!");
         }
         Pengobatan pengobatan = find.get();
         return PengobatanResponse.builder()
@@ -68,7 +88,7 @@ public class PengobatanService {
         Optional<Pasien> findPasien = pasienRepository.findById(request.getPasienId());
         Optional<Dokter> findDokter = dokterRepository.findById(request.getDokterId());
         if (!findPasien.isPresent() || !findDokter.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada pasien atau dokter dengan ID ini!");
         }
         Pasien pasien = findPasien.get();
         Dokter dokter = findDokter.get();
@@ -91,12 +111,12 @@ public class PengobatanService {
     public PengobatanResponse updatePengobatan(Integer id, PengobatanRequest request) {
         Optional<Pengobatan> findPengobatan = pengobatanRepository.findById(id);
         if (!findPengobatan.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada pengobatan dengan ID ini!");
         }
         Optional<Pasien> findPasien = pasienRepository.findById(request.getPasienId());
         Optional<Dokter> findDokter = dokterRepository.findById(request.getDokterId());
         if (!findPasien.isPresent() || !findDokter.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada pasien atau dokter dengan ID ini!");
         }
         Pasien pasien = findPasien.get();
         Dokter dokter = findDokter.get();

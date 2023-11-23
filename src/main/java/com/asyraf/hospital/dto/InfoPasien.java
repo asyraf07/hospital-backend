@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 @AllArgsConstructor
 public class InfoPasien {
@@ -13,9 +15,9 @@ public class InfoPasien {
     private String namaDokter;
     private String penyakit;
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private Data tanggalMasuk;
+    private Date tanggalMasuk;
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private Data tanggalKeluar;
+    private Date tanggalKeluar;
 
     
 }

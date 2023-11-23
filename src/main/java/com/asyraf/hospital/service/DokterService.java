@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +20,34 @@ import lombok.SneakyThrows;
 @Service
 public class DokterService {
 
-    @Autowired
-    DokterRepository dokterRepository;
+    private final DokterRepository dokterRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    UserRepository userRepository;
+    public DokterService(DokterRepository dokterRepository, UserRepository userRepository) {
+        this.dokterRepository = dokterRepository;
+        this.userRepository = userRepository;
+    }
+
+    public List<String> getAllSpesialisasi() {
+        return dokterRepository.findAllSpesialisasi();
+    }
+
+    public List<DokterResponse> getDokterBySpesialisasi(String spesialisasi) {
+        List<DokterResponse> response = new ArrayList<>();
+
+        List<Dokter> dokterList = dokterRepository.findBySpesialisasiIgnoreCase(spesialisasi);
+        for (Dokter dokter : dokterList) {
+            response.add(DokterResponse.builder()
+                    .id(dokter.getId())
+                    .nama(dokter.getUser().getNama())
+                    .noHp(dokter.getUser().getNoHP())
+                    .spesialisasi(dokter.getSpesialisasi())
+                    .userId(dokter.getUser().getId())
+                    .build());
+        }
+        return response;
+    }
 
     public List<DokterResponse> getAllDokter() {
         List<DokterResponse> response = new ArrayList<>();
@@ -45,7 +69,7 @@ public class DokterService {
     public DokterResponse getDokter(Integer id) {
         Optional<Dokter> find = dokterRepository.findById(id);
         if (!find.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada dokter dengan ID ini!");
         }
         Dokter dokter = find.get();
         return DokterResponse.builder()
@@ -61,7 +85,7 @@ public class DokterService {
     public DokterResponse addDokter(DokterRequest request) {
         Optional<User> find = userRepository.findById(request.getUserId());
         if (!find.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada user dengan ID ini!");
         }
         User user = find.get();
         Dokter dokter = new Dokter();
@@ -81,11 +105,11 @@ public class DokterService {
     public DokterResponse updateDokter(Integer id, DokterRequest request) {
         Optional<Dokter> findDokter = dokterRepository.findById(id);
         if (!findDokter.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada dokter dengan ID ini!");
         }
         Optional<User> findUser = userRepository.findById(request.getUserId());
         if (!findUser.isPresent()) {
-            throw new Exception();
+            throw new ServiceException("Tidak ada user dengan ID ini!");
         }
         User user = findUser.get();
         Dokter dokter = findDokter.get();

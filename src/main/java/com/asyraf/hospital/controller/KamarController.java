@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.asyraf.hospital.dto.DetailKamar;
 import com.asyraf.hospital.dto.KamarRequest;
 import com.asyraf.hospital.dto.KamarResponse;
 import com.asyraf.hospital.service.KamarService;
@@ -21,8 +22,17 @@ import com.asyraf.hospital.service.KamarService;
 @RequestMapping("/kamar")
 public class KamarController {
 
+    private final KamarService kamarService;
+
     @Autowired
-    private KamarService kamarService;
+    public KamarController(KamarService kamarService) {
+        this.kamarService = kamarService;
+    }
+
+    @GetMapping("/detail/{noKamar}")
+    public ResponseEntity<DetailKamar> getDetail(@PathVariable("noKamar") String noKamar) {
+        return ResponseEntity.ok(kamarService.getDetailKamar(noKamar));
+    }
 
     @GetMapping
     public ResponseEntity<List<KamarResponse>> getAll() {
